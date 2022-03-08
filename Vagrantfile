@@ -3,27 +3,26 @@
 
 $install_basics = <<SCRIPT
 # Packages required for nomad & consul
+echo "=== Installing basics ..."
 sudo apt-get update
-sudo apt-get install curl jq openssl unzip vim -y
+sudo apt-get install curl jq openssl unzip vim apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update -y
-
-SCRIPT
-
-$install_docker = <<SCRIPT
-echo "Installing Docker..."
-
-sudo apt-get remove docker docker-engine docker.io
-echo '* libraries/restart-without-asking boolean true' | sudo debconf-set-selections
-sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg |  sudo apt-key add -
 sudo apt-key fingerprint 0EBFCD88
 sudo add-apt-repository \
       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) \
       stable"
-sudo apt-get update
+sudo apt-get update -y
+
+SCRIPT
+
+$install_docker = <<SCRIPT
+echo "=== Installing Docker..."
+
+sudo apt-get remove docker docker-engine docker.io
+echo '* libraries/restart-without-asking boolean true' | sudo debconf-set-selections
 sudo apt-get install -y docker-ce
 # Restart docker to make sure we get the latest version of the daemon if there is an upgrade
 sudo service docker restart
@@ -34,16 +33,14 @@ SCRIPT
 
 $install_vault = <<SCRIPT
 
-echo "Installing Vault..."
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install vault -y
+echo "=== Installing Vault..."
+sudo apt-get install vault -y
 vault -autocomplete-install
 SCRIPT
 
 $install_nomad = <<SCRIPT
 
-echo "Installing Nomad..."
+echo "=== Installing Nomad..."
 NOMAD_VERSION=1.2.6
 cd /tmp/
 curl -sSL https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip -o nomad.zip
@@ -58,9 +55,9 @@ SCRIPT
 
 $install_consul = <<SCRIPT
 
-echo "Installing Consul..."
+echo "=== Installing Consul..."
 CONSUL_VERSION=1.9.0
-curl -sSL https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip > consul.zip
+curl -sSL https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip > /tmp/consul.zip
 unzip /tmp/consul.zip
 sudo install consul /usr/bin/consul
 (
@@ -97,19 +94,22 @@ SCRIPT
 Vagrant.configure(2) do |config|
   # Increase memory for Virtualbox
   config.vm.provider "virtualbox" do |vb|
-        vb.memory = "1024"
+        vb.memory = "2048"
   end
 
   config.vm.box = "bento/ubuntu-18.04" # 18.04 LTS
   config.vm.hostname = "nomad"
   config.vm.provision "shell", inline: $install_basics, privileged: false
   config.vm.provision "shell", inline: $install_docker, privileged: false
-  config.vm.provision "shell", inline: $install_vault, privileged: false
-  config.vm.provision "shell", inline: $install_nomad, privileged: false
+  #config.vm.provision "shell", inline: $install_vault, privileged: false
+  #config.vm.provision "shell", inline: $install_nomad, privileged: false
   config.vm.provision "shell", inline: $install_consul, privileged: false
 
   # Expose the nomad api and ui to the host
   config.vm.network :private_network, ip: "10.10.10.10", hostname: true
+  config.vm.network "forwarded_port", guest: 3306, host: 3306, auto_correct: true, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 5432, host: 5432, auto_correct: true, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8200, host: 8200, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.synced_folder ".", "/home/vagrant/nomad"

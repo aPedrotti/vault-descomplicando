@@ -1,5 +1,5 @@
-job "postgres-nomad-demo" {
-  datacenters = ["linuxtips"]
+job "postgres" {
+  datacenters = ["dc1"]
 
 
   group "db" {
