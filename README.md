@@ -4,13 +4,11 @@
 ### Run a VM with nomad installed:
 ```
 vagrant up
-```
 
-```
 vagrant ssh
 ```
 
-### Start your server / client
+### Start your Nomad Server / Client
 ```
 sudo nomad agent -dev -bind 0.0.0.0 -log-level INFO
 ```
@@ -56,10 +54,13 @@ EOF
 vault write /auth/token/roles/nomad-cluster @nomad-cluster-role.json
 
 vault token create -policy nomad-server -period 72h -orphan 
-#note token to add to nomad server - vault stanza
+# orphan means that it does not take into consideration parents periods policy
+# take note token to add to nomad server - vault stanza
+```
 
-## https://www.nomadproject.io/docs/configuration/vault
-# Configuring Nomad Servers
+### Configuring Nomad Servers
+#### https://www.nomadproject.io/docs/configuration/vault
+```
 cat <<EOF >> /etc/nomad.d/nomad.hcl
 vault {
     enabled = true
@@ -69,10 +70,10 @@ vault {
     token = ""
 }
 EOF
-
 systemctl restart nomad.service
-
-#Configuring Nomad Clients
+```
+### Configuring Nomad Clients
+```
 cat <<EOF >> /etc/nomad.d/nomad.hcl
 vault {
     enabled = true
