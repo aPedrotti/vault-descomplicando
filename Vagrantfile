@@ -97,7 +97,7 @@ Vagrant.configure(2) do |config|
         vb.memory = "2048"
   end
 
-  config.vm.box = "bento/ubuntu-18.04" # 18.04 LTS
+  config.vm.box = "ubuntu/focal64" # 20.04 LTS
   config.vm.hostname = "nomad"
   config.vm.provision "shell", inline: $install_basics, privileged: false
   config.vm.provision "shell", inline: $install_docker, privileged: false
