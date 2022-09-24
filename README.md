@@ -33,7 +33,7 @@ export VAULT_ADDR='http://10.0.2.15:8200'
 export VAULT_ADDR='http://127.0.0.1:8200'
 
 export VAULT_DEV_ROOT_TOKEN_ID=naosei
-export VAULT_UNSEAL_KEY=yymNJtxIce6l5X4TBu+FyOOi8JMbaAoh5UBl0a092no=
+export VAULT_UNSEAL_KEY=<gen_key>
 
 # About Sealing 
 https://www.vaultproject.io/docs/concepts/seal
