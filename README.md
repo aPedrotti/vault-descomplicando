@@ -62,7 +62,9 @@ https://developer.hashicorp.com/vault/tutorials/recommended-patterns/pattern-uns
 ```
 
 ## Integrate Vault with Nomad
+
 [https://www.nomadproject.io/docs/configuration/vault]
+
 ```bash
 # Get ta default policy and write it in vault's db
 curl https://nomadproject.io/data/vault/nomad-server-policy.hcl -O -s -L
