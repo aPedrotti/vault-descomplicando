@@ -1,12 +1,11 @@
 {
-    "db_name": "postgres",
-    "allowed_roles": "postgres-role",
+    "db_name": "my-postgres-connection",
+    "allowed_roles": "my-postgres-role",
     "creation_statements": [
-      "CREATE ROLE '{{name}}' WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'",
-      "GRANT SELECT ON ALL TABLES IN SCHEMA public TO '{{name}}'",
-      "GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO '{{name}}'",
-      "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO '{{name}}'",
-      "GRANT ALL ON SCHEMA public TO '{{name}}'"
+      "CREATE USER \"{{name}}\" WITH ENCRYPTED PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';",
+      "GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO \"{{name}}\";",
+      "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"{{name}}\";",
+      "GRANT ALL ON SCHEMA public TO \"{{name}}\";"
     ],
     "default_ttl": "1h",
     "max_ttl": "12h"

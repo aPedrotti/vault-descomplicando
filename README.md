@@ -33,7 +33,7 @@ export VAULT_ADDR='http://10.0.2.15:8200'
 export VAULT_ADDR='http://127.0.0.1:8200'
 
 export VAULT_DEV_ROOT_TOKEN_ID=naosei
-export VAULT_UNSEAL_KEY=<gen_key>
+export VAULT_UNSEAL_KEY=rGYLBdotMM9QVnVan+AUc15ZRbeheil0lrvNjQac7Js=
 
 # About Sealing 
 https://www.vaultproject.io/docs/concepts/seal
@@ -117,9 +117,11 @@ vault read dbs/creds/my-mysql-role
 nomad run vault-secrets-database/app.nomad #currently not working - "Vault not enabled and Vault policies requested" 
 
 ## For Postgres - not being able to read creds 
-nomad run vault-secrets-database/postgres.nomad
-vault write dbs/config/postgresql @vault-secrets-database/1-connection-postgres.json
-vault write dbs/roles/accessdb_pgsql @vault-secrets-database/2-accessdb-role-posgres.json
-vault policy write postgres-read-policy vault-secrets-database/3-access-tables-policy-pgsql.hcl
-vault read dbs/creds/accessdb_pgsql
+nomad run vault-secrets-database/0-postgres.nomad
+vault write dbs/config/my-postgres-connection @vault-secrets-database/1-connection-postgres.json
+vault write dbs/roles/my-postgres-role @vault-secrets-database/2-accessdb-role-postgres.json
+#or using sql file for statement
+vault write dbs/roles/my-postgres-role db_name=my-postgres-connection allowed_roles=my-postgres-role creation_statements=@vault-secrets-database/2-accessdb-role-postgres.sql default_tl=1h max_ttl=24h
+vault policy write my-postgres-policy-read vault-secrets-database/3-access-tables-policy-pgsql.hcl
+vault read dbs/creds/my-postgres-role
 ```

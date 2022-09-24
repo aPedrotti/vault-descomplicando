@@ -1,3 +1,3 @@
-path "dbs/creds/postgres-roles" {
+path "dbs/creds/my-postgres-role" {
   capabilities = ["read"]
 }
