@@ -1,5 +1,5 @@
 job "postgres" {
-  datacenters = ["dc1"]
+  datacenters = ["my-nomad-lab"]
 
 
   group "db" {

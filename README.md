@@ -11,6 +11,7 @@ vagrant ssh
 ### Start your Nomad Server / Client
 ```
 sudo nomad agent -dev -bind 0.0.0.0 -log-level INFO &
+#sudo nomad agent -dev -config="/etc/nomad.d/nomad.hcl" -log-level INFO &
 ```
 
 ### Main Nomad commands
@@ -29,7 +30,15 @@ nomad job status
 ```
 vault server -dev -dev-listen-address :8200 -dev-root-token-id naosei &
 export VAULT_ADDR='http://10.0.2.15:8200'
+export VAULT_ADDR='http://127.0.0.1:8200'
 
+export VAULT_DEV_ROOT_TOKEN_ID=naosei
+export VAULT_UNSEAL_KEY=yymNJtxIce6l5X4TBu+FyOOi8JMbaAoh5UBl0a092no=
+
+# About Sealing 
+https://www.vaultproject.io/docs/concepts/seal
+# Patterns for unsealing 
+https://developer.hashicorp.com/vault/tutorials/recommended-patterns/pattern-unseal?in=vault%2Frecommended-patterns
 
 ```
 
@@ -37,7 +46,7 @@ export VAULT_ADDR='http://10.0.2.15:8200'
 [https://www.nomadproject.io/docs/configuration/vault]
 ```
 curl https://nomadproject.io/data/vault/nomad-server-policy.hcl -O -s -L
-vault policy write nomad-server nomad-server-policy.hcl
+vault policy write nomad-server nomad-server-policy-vault.hcl
 # A Vault token role must be created 
 cat <<EOF > nomad-cluster-role.json
 {
@@ -67,7 +76,7 @@ vault {
     address = "http://10.0.2.15:8200"
     task_token_ttl = "1h"
     create_from_role = "nomad-cluster¨
-    token = ""
+    token = "<< FILL HERE WITH GEN TOKEN >>"
 }
 EOF
 systemctl restart nomad.service
@@ -93,16 +102,16 @@ vault secrets enable -path dbs database
 nomad run vault-secrets-database/0-mysql.nomad
 
 # Config Connection
-vault write dbs/config/mysql @vault-secrets-database/1-connection-mysql.json
+vault write dbs/config/my-mysql-connection @vault-secrets-database/1-connection-mysql.json
 
 # Configure Vault Access Management and TTL
-vault write dbs/roles/accessdb @vault-secrets-database/2-accessdb-role-mysql.json
+vault write dbs/roles/my-mysql-role @vault-secrets-database/2-accessdb-role-mysql.json
 
 # Configure policy to be able to read credentials
-vault policy write mysql-read-policy vault-secrets-database/3-access-tables-policy-mysql.hcl
+vault policy write my-mysql-policy-read vault-secrets-database/3-access-tables-policy-mysql.hcl
 
 # Confirms credential reading
-vault read dbs/creds/accessdb
+vault read dbs/creds/my-mysql-role 
 
 # Deploy the app to comunicate:
 nomad run vault-secrets-database/app.nomad #currently not working - "Vault not enabled and Vault policies requested" 

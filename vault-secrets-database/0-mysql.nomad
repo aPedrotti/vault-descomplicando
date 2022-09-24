@@ -1,5 +1,5 @@
 job "mysql" {
-  datacenters = ["dc1"]
+  datacenters = ["my-nomad-lab"]
   type = "service"
   group "mysql" {
     count = 1
@@ -14,7 +14,7 @@ job "mysql" {
     #  source = "giropops"
   #  }
 
-    task "mysql" {
+    task "mysql-server" {
       driver = "docker"
       #volume_mount {
       #  volume = "dados"

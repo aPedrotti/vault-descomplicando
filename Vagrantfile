@@ -46,7 +46,33 @@ cd /tmp/
 curl -sSL https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip -o nomad.zip
 unzip nomad.zip
 sudo install nomad /usr/bin/nomad
+echo "=== Configuring Nomad ..."
+sudo mkdir -p /opt/nomad/data
 sudo mkdir -p /etc/nomad.d
+sudo touch /etc/nomad.d/nomad.hcl
+
+sudo cat <<EOF >> /etc/nomad.d/nomad.hcl
+data_dir= "/opt/nomad/data"
+bind_addr = "0.0.0.0"
+datacenter = "my-nomad-lab"
+region = "amsterdam"
+server {
+  enabled = true
+  bootstrap_expect = 3
+}
+client {
+  enabled = false
+}
+consul {
+  address = "127.0.0.1:8500"
+  server_service_name = "nomad"
+  client_service_name = "nomad-client"
+  auto_advertise = true
+  server_auto_join = true
+  client_auto_join = true
+}
+EOF
+sudo chmod a+w /opt/nomad
 sudo chmod a+w /etc/nomad.d
 nomad -autocomplete-install
 
@@ -101,8 +127,8 @@ Vagrant.configure(2) do |config|
   config.vm.hostname = "nomad"
   config.vm.provision "shell", inline: $install_basics, privileged: false
   config.vm.provision "shell", inline: $install_docker, privileged: false
-  #config.vm.provision "shell", inline: $install_vault, privileged: false
-  #config.vm.provision "shell", inline: $install_nomad, privileged: false
+  config.vm.provision "shell", inline: $install_vault, privileged: false
+  config.vm.provision "shell", inline: $install_nomad, privileged: false
   config.vm.provision "shell", inline: $install_consul, privileged: false
 
   # Expose the nomad api and ui to the host
@@ -112,6 +138,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 8080, host: 8080, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 4646, host: 4646, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 8200, host: 8200, auto_correct: true, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8500, host: 8500, auto_correct: true, host_ip: "127.0.0.1"
   config.vm.synced_folder ".", "/home/vagrant/nomad"
   
   ## Increase memory for Parallels Desktop

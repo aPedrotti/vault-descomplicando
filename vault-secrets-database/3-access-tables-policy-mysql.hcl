@@ -1,3 +1,3 @@
-path "dbs/creds/accessdb" {
+path "dbs/creds/my-mysql-access" {
   capabilities = ["read"]
 }

@@ -1,5 +1,5 @@
 {
-    "db_name": "mysql-database-plugin",
+    "db_name": "my-mysql-connection",
     "creation_statements": [
       "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'",
       "GRANT SELECT ON *.* TO '{{name}}'@'%'"
