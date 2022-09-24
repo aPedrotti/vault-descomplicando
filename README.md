@@ -1,21 +1,39 @@
-# Descomplicando o Nomad
+# Descomplicando Vault with Nomad
 
+## About
 
-### Run a VM with nomad installed:
-```
+It is forked from @badtuxx nomad training, but mainly focused creating a lab for Hashicorp Vault capabilities tests. 
+
+You will run spinup a virtual machine to run your cluster and use Vault.
+
+The journey is from #LinuxTips ["Nomad + Vault"](https://www.youtube.com/playlist?list=PLf-O3X2-mxDlBQW_1kb_RT6LcYX_XwyAG) playlist and [Vault Learn](https://learn.hashicorp.com/vault)
+
+For further instructions running vault check vault-commands.md and vault-run-prod.md
+
+## Requirements
+
+- virtualbox
+- vagrant
+
+## Run a VM with nomad installed
+
+```bash
 vagrant up
 
 vagrant ssh
 ```
 
 ### Start your Nomad Server / Client
-```
+
+```bash
 sudo nomad agent -dev -bind 0.0.0.0 -log-level INFO &
-#sudo nomad agent -dev -config="/etc/nomad.d/nomad.hcl" -log-level INFO &
+# Or if you would like to place some custom config 
+sudo nomad agent -dev -config="/etc/nomad.d/nomad.hcl" -log-level INFO &
 ```
 
 ### Main Nomad commands
-```
+
+```bash
 nomad node status
 nomad server members
 
@@ -27,7 +45,8 @@ nomad job status
 ```
 
 ## Vault start
-```
+
+```bash
 vault server -dev -dev-listen-address :8200 -dev-root-token-id naosei &
 export VAULT_ADDR='http://10.0.2.15:8200'
 export VAULT_ADDR='http://127.0.0.1:8200'
@@ -44,10 +63,11 @@ https://developer.hashicorp.com/vault/tutorials/recommended-patterns/pattern-uns
 
 ## Integrate Vault with Nomad
 [https://www.nomadproject.io/docs/configuration/vault]
-```
+```bash
+# Get ta default policy and write it in vault's db
 curl https://nomadproject.io/data/vault/nomad-server-policy.hcl -O -s -L
 vault policy write nomad-server nomad-server-policy-vault.hcl
-# A Vault token role must be created 
+# Create and apply a Vault role for the token
 cat <<EOF > nomad-cluster-role.json
 {
   "disallowed_policies": "nomad-server",
@@ -59,17 +79,20 @@ cat <<EOF > nomad-cluster-role.json
   "renewable": true
 }
 EOF
-
+# Publish 
 vault write /auth/token/roles/nomad-cluster @nomad-cluster-role.json
-
+#Generate a token
 vault token create -policy nomad-server -period 72h -orphan 
 # orphan means that it does not take into consideration parents periods policy
 # take note token to add to nomad server - vault stanza
 ```
 
 ### Configuring Nomad Servers
-#### https://www.nomadproject.io/docs/configuration/vault
-```
+
+[https://www.nomadproject.io/docs/configuration/vault]
+
+```bash
+# Add vault stanza to nomad config 
 cat <<EOF >> /etc/nomad.d/nomad.hcl
 vault {
     enabled = true
@@ -79,10 +102,15 @@ vault {
     token = "<< FILL HERE WITH GEN TOKEN >>"
 }
 EOF
+# Restart the service or stop and run again if using dev mode
 systemctl restart nomad.service
 ```
+
 ### Configuring Nomad Clients
-```
+
+> if you have it
+
+```bash
 cat <<EOF >> /etc/nomad.d/nomad.hcl
 vault {
     enabled = true
@@ -93,8 +121,9 @@ EOF
 systemctl restart nomad.service
 ```
 
-## Configuring Dynamic Database 
-```
+## Configuring Dynamic Database
+
+```bash
 # Enables database in a path
 vault secrets enable -path dbs database
 
