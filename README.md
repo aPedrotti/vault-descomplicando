@@ -2,20 +2,22 @@
 
 ## About
 
-It is forked from @badtuxx nomad training, but mainly focused creating a lab for Hashicorp Vault capabilities tests. 
+It is forked from @badtuxx nomad training, but mainly focused creating a lab for Hashicorp Vault capabilities.
 
-You will run spinup a virtual machine to run your cluster and use Vault.
+You will run spinup a virtual machine to run your cluster Nomad and use Vault.
 
-The journey is from #LinuxTips ["Nomad + Vault"](https://www.youtube.com/playlist?list=PLf-O3X2-mxDlBQW_1kb_RT6LcYX_XwyAG) playlist and [Vault Learn](https://learn.hashicorp.com/vault)
+The journey is from #LinuxTips ["Nomad + Vault"](https://www.youtube.com/playlist?list=PLf-O3X2-mxDlBQW_1kb_RT6LcYX_XwyAG) playlist and [Vault Learn](https://learn.hashicorp.com/vault) documentation.
 
-For further instructions running vault check vault-commands.md and vault-run-prod.md
+All these runs in dev mode (in-memory). If you would like to persist, check full path (days) for Nomad and vault-run-prod.md. 
+
+You can check vault-commands.md for further vault cli references
 
 ## Requirements
 
 - virtualbox
 - vagrant
 
-## Run a VM with nomad installed
+## Run VM
 
 ```bash
 vagrant up
@@ -23,7 +25,7 @@ vagrant up
 vagrant ssh
 ```
 
-### Start your Nomad Server / Client
+## Start your Nomad Server / Client
 
 ```bash
 sudo nomad agent -dev -bind 0.0.0.0 -log-level INFO &
@@ -48,7 +50,7 @@ nomad job status
 
 ```bash
 vault server -dev -dev-listen-address :8200 -dev-root-token-id naosei &
-export VAULT_ADDR='http://10.0.2.15:8200'
+#export VAULT_ADDR='http://10.0.2.15:8200'
 export VAULT_ADDR='http://127.0.0.1:8200'
 
 export VAULT_DEV_ROOT_TOKEN_ID=naosei
