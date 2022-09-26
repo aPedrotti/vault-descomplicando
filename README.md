@@ -54,7 +54,7 @@ vault server -dev -dev-listen-address :8200 -dev-root-token-id naosei &
 export VAULT_ADDR='http://127.0.0.1:8200'
 
 export VAULT_DEV_ROOT_TOKEN_ID=naosei
-export VAULT_UNSEAL_KEY=rGYLBdotMM9QVnVan+AUc15ZRbeheil0lrvNjQac7Js=
+export VAULT_UNSEAL_KEY=.....
 
 # About Sealing 
 https://www.vaultproject.io/docs/concepts/seal
