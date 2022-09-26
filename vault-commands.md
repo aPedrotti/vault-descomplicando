@@ -3,6 +3,17 @@
 agent      auth       delete     lease      login      namespace  path-help  policy     read       server     status     unwrap     
 audit      debug      kv         list       monitor    operator   plugin     print      secrets    ssh        token      write
 ```
+## AUTH
+
+```bash
+vault auth enable userpass
+
+vault write auth/userpass/users/<name> password=<pwd>
+
+vault login -method=userpass username=<name> password=<pwd>
+
+vault token lookup
+``` 
 
 ## SECRETS - https://www.vaultproject.io/docs/secrets
 ```
