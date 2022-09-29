@@ -36,6 +36,7 @@ $install_vault = <<SCRIPT
 echo "=== Installing Vault..."
 sudo apt-get install vault -y
 vault -autocomplete-install
+echo "export VAULT_ADDR='http://127.0.0.1:8200'" >> ~/.profile
 SCRIPT
 
 $install_nomad = <<SCRIPT
@@ -116,6 +117,18 @@ done
 
 SCRIPT
 
+$install_kind = <<SCRIPT
+echo "=== Getting Kind ..."
+curl -Lso ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
+chmod +x kind
+sudo mv kind /usr/local/bin/
+
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update -y
+sudo apt-get install -y kubectl
+
+SCRIPT
 
 Vagrant.configure(2) do |config|
   # Increase memory for Virtualbox
